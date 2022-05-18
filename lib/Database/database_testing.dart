@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gam3a/reuse.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import '../constants/constants.dart';
 
 
 class Data extends StatefulWidget {
@@ -20,7 +20,6 @@ class _DataState extends State<Data> {
     createDatabse();
   }
   late Database database;
-  List<Map> property = [];
 
   void createDatabse()async{
      database = await openDatabase(
@@ -30,7 +29,9 @@ class _DataState extends State<Data> {
            print('databse created');
 
           await database.execute(
-              'CREATE TABLE Test (id INTEGER PRIMARY KEY, Title TEXT,Details TEXT,PhoneNumber TEXT,Location TEXT,Bedroom INTEGER,Bathroom INTEGER, Area INTEGER ,Price INTEGER)');
+            // 'CREATE TABLE Test (id INTEGER PRIMARY KEY, Title TEXT,Details TEXT,PhoneNumber TEXT,Location TEXT,Bedroom INTEGER,Bathroom INTEGER, Area INTEGER ,Price INTEGER , )');
+              //'CREATE TABLE pro (id INTEGER PRIMARY KEY, Img TEXT, Title TEXT, Bedroom INTEGER, Area INTEGER , Price INTEGER)');
+              'CREATE TABLE pro (id INTEGER PRIMARY KEY, Img TEXT, Title TEXT, Bedroom INTEGER, Area INTEGER , Price INTEGER)');
         },
 
         onOpen: (database){
@@ -47,10 +48,19 @@ class _DataState extends State<Data> {
         );
   }
 
-  void insertToDatabase(){
+  void insertToDatabase({
+    required String image,
+    required String title,
+    required int bedroom,
+    required int area,
+    required int price,
+
+
+}){
     database.transaction((txn) async {
 
-      await txn.rawInsert('INSERT INTO Test ( Title ,Details ,PhoneNumber ,Location ,Bedroom ,Bathroom , Area  ,Price ) VALUES ("ZZ Villa" , "Porto October is located in the heart of 6th of October City" , "01020296982" , "October" , "7" ," 3 ","150" , "3501")')
+      //await txn.rawInsert('INSERT INTO Proprties (Img, Title, Bedroom ,Area,Price ) VALUES ("$image" , "$title" , "$bedroom","$area","$price")')
+      await txn.rawInsert('INSERT INTO pro (Img, Title, Bedroom ,Area,Price ) VALUES ("images/properties/ap1.jpeg" , "AA" , "8","589","77")')
           .then((value) => print('$value inserted succefully'))
           .catchError((e)=> print('error when inserting data: $e'));
 
@@ -72,23 +82,24 @@ Future <List<Map>> getDataFromDatabase(database) async{
       body: Center(
         child: Column(children: [
           ElevatedButton(onPressed: (){
-            insertToDatabase();
+            insertToDatabase(image: "sadsad", title: "title", bedroom: 8, area: 7, price: 1582);
           }, child: Text('add'),
           ),
           ElevatedButton(onPressed: (){
-            print(property.);
+            print(property);
           }, child: Text('Print'),
           ),
-          ListView.builder(
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            itemCount: property.length,
-            itemBuilder: (BuildContext context, index) {
-              property[index];
-              return RecommendCard(
-                Area: Database;
-              );
-            },
+          Container(
+            width: double.infinity,
+            height: 400,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              itemCount: property.length,
+              itemBuilder: (BuildContext context, index) {
+                return RecommendCard(property[index]);
+              },
+            ),
           ),
 
 

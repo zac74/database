@@ -1,14 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget RecommendCard({
-
-  String? Title,
-  String? Area,
-  String? Bedroom,
-  String? Img,
-
-
-}) => Builder(
+Widget RecommendCard(Map like) => Builder(
   builder: (context) {
     return     Container(
       width: 200,
@@ -26,7 +18,7 @@ Widget RecommendCard({
             child: Image(
               height: 120,
               width: double.infinity,
-              image: AssetImage(Img!),
+              image: AssetImage('images/office.jpeg'),
               fit: BoxFit.cover,
             ),
           ),
@@ -48,7 +40,7 @@ Widget RecommendCard({
             height: 6,
           ),
           Text(
-            Title!,
+            '${like['Title']}',
             style: Theme.of(context).textTheme.subtitle1!.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -57,11 +49,17 @@ Widget RecommendCard({
             height: 4,
           ),
           Text(
-            "${Bedroom} rooms - ${Area} square foots ",
+            "${like['Bedroom']} Bedroom - ${like['Area']} Meters ",
             style: Theme.of(context).textTheme.caption!.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
+          // Text(
+          //   '${like['Price']}',
+          //   style: Theme.of(context).textTheme.subtitle1!.copyWith(
+          //     fontWeight: FontWeight.bold,
+          //   ),
+          // ),
         ],
       ),
     );

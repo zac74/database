@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:gam3a/homescreen.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqlite_api.dart';
+import '../constants/constants.dart';
+
+
+
 
 
 class AddProperty extends StatefulWidget {
@@ -9,25 +16,76 @@ class AddProperty extends StatefulWidget {
 }
 class _AddPropertyState extends State<AddProperty> {
 
-  CollectionReference property = FirebaseFirestore.instance.collection('property');
-  final databaseRef = FirebaseFirestore.instance;
-
-  String? Title;
-  String? Details;
-  String? Location;
-  String? Bedroom;
-  String? Bathroom;
-  String? Area;
-  String? PhoneNumber;
-  String? Price;
-
   @override
-  void initState()   {
-    // TODO: implement initState
+  initState(){
     super.initState();
-    CollectionReference reference = FirebaseFirestore.instance.collection("users");
+    createDatabse();
+  }
+  late Database database;
+
+TextEditingController titleController = TextEditingController();
+TextEditingController detailsController = TextEditingController();
+TextEditingController locationController = TextEditingController();
+TextEditingController bedroomsController = TextEditingController();
+TextEditingController bathroomsController = TextEditingController();
+TextEditingController areaController = TextEditingController();
+TextEditingController phonenumberController = TextEditingController();
+TextEditingController priceController = TextEditingController();
+TextEditingController imgController = TextEditingController();
+
+  void createDatabse()async{
+    database = await openDatabase(
+        'ARQA For Real Estate',
+        version: 1,
+        onCreate: (database, version) async {
+          print('databse created');
+
+          await database.execute(
+            // 'CREATE TABLE Test (id INTEGER PRIMARY KEY, Title TEXT,Details TEXT,PhoneNumber TEXT,Location TEXT,Bedroom INTEGER,Bathroom INTEGER, Area INTEGER ,Price INTEGER , )');
+            //  'CREATE TABLE Properties (id INTEGER PRIMARY KEY, Img TEXT, Title TEXT, Bedroom INTEGER, Area INTEGER , Price INTEGER)');
+              'CREATE TABLE Properties1 (id INTEGER PRIMARY KEY, Img TEXT, Title TEXT, Bedroom INTEGER, Area INTEGER , Price INTEGER)');
+        },
+
+        onOpen: (database){
+          print('database opened');
+          getDataFromDatabase(database).then((value) {
+            property=value;
+            print(property);
+          }
+          );
+
+
+        }
+
+    );
+  }
+void insertToDatabase({
+  required String image,
+  required String title,
+  required String bedroom,
+  required String area,
+  required String price,
+
+
+    }
+    )
+    {
+  database.transaction((txn) async {
+
+    await txn.rawInsert('INSERT INTO Properties1 (Img, Title, Bedroom ,Area,Price ) VALUES ("$image" , "$title" , "$bedroom","$area","$price")')
+        .then((value) => print('$value inserted succefully'))
+        .catchError((e)=> print('error when inserting data: $e'));
 
   }
+  );
+
+
+}
+  Future <List<Map>> getDataFromDatabase(database) async{
+    return await database.rawQuery('SELECT * FROM Properties1');
+  }
+
+  @override
 
 
   Widget build(BuildContext context) {
@@ -42,9 +100,7 @@ class _AddPropertyState extends State<AddProperty> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               TextFormField(
-                onChanged: (value){
-                  Title = value;
-                },
+                controller: titleController,
                 decoration: const InputDecoration(
                   icon: Icon(Icons.title),
                   labelText: 'Title',
@@ -57,9 +113,7 @@ class _AddPropertyState extends State<AddProperty> {
                 height: 10,
               ),
               TextFormField(
-                onChanged: (value){
-                  Details = value;
-                },
+                controller: detailsController,
                 decoration: const InputDecoration(
                   icon: Icon(Icons.assignment),
                   labelText: 'Details',
@@ -72,9 +126,7 @@ class _AddPropertyState extends State<AddProperty> {
                 height: 10,
               ),
               TextFormField(
-                onChanged: (value){
-                  Bedroom = value ;
-                },
+                controller: bedroomsController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.bedroom_parent_outlined),
@@ -87,9 +139,7 @@ class _AddPropertyState extends State<AddProperty> {
                 height: 10,
               ),
               TextFormField(
-                onChanged: (value){
-                  Bathroom = value ;
-                },
+                controller: bathroomsController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.bathroom_outlined),
@@ -102,9 +152,7 @@ class _AddPropertyState extends State<AddProperty> {
                 height: 10,
               ),
               TextFormField(
-                onChanged: (value){
-                  Area = value ;
-                },
+                controller: areaController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.crop_square_outlined),
@@ -118,9 +166,7 @@ class _AddPropertyState extends State<AddProperty> {
                 height: 10,
               ),
               TextFormField(
-                onChanged: (value){
-                  Location = value;
-                },
+                controller: locationController,
                 decoration: const InputDecoration(
                   icon: Icon(Icons.location_on),
                   labelText: 'Location',
@@ -131,9 +177,7 @@ class _AddPropertyState extends State<AddProperty> {
                 height: 10,
               ),
               TextFormField(
-                onChanged: (value){
-                  PhoneNumber = value ;
-                },
+                controller: phonenumberController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.phone),
@@ -147,14 +191,22 @@ class _AddPropertyState extends State<AddProperty> {
                 height: 10,
               ),
               TextFormField(
-                onChanged: (value){
-                  Price = value ;
-                },
+                controller: priceController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.attach_money_outlined),
                   labelText: 'Price',
                   hintText: 'property price',
+                  errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red, width: 5)),
+                ),
+              ),
+              TextFormField(
+                controller: imgController,
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.attach_money_outlined),
+                  labelText: 'Image',
+                  hintText: 'Image Path',
                   errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red, width: 5)),
                 ),
@@ -171,16 +223,8 @@ class _AddPropertyState extends State<AddProperty> {
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30)))),
                 onPressed: () async {
-                  await property.add({
-                    'Title' : Title,
-                    'Details' : Details,
-                    'Location' : Location,
-                    'Bedroom' : Bedroom,
-                    'Bathroom' : Bathroom,
-                    'Area' : Area,
-                    'PhoneNumber' : PhoneNumber,
-                    'Price' : Price,
-                  }).then((value) => print("Property Added")).catchError((error) => print("Faild : $error"));
+                  insertToDatabase(image: imgController.text, title: titleController.text, bedroom: bedroomsController.text , area: areaController.text, price: priceController.text);
+                  Navigator.push(context, MaterialPageRoute(builder:(context) => HomeScreen(), ));
                 },
                 child: Text('Add'),
               ),

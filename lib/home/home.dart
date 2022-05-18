@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gam3a/db/property_database.dart';
+import 'package:gam3a/reuse.dart';
+import 'package:sqflite/sqflite.dart';
+import '../constants/constants.dart';
 import '../model/category_model.dart';
 import '../model/category_page.dart';
 import '../model/details_page.dart';
@@ -14,24 +17,22 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late List<Property> propertys;
-  bool isLoading = false;
+
+  Future <List<Map>> getDataFromDatabase(database, String qry) async{
+    return await database.rawQuery(qry);
+  }
+  late Database database;
+  List<Map> homeProperty=[];
   @override
+  intState(){
+  super.initState();
+  getDataFromDatabase(database, 'SELECT * FROM Properties').then((value) {
+    return property = value;
+  });
+}
 
-  void initState(){
-    super.initState();
 
-    refreshPropertys();
-  }
-  Future refreshPropertys() async{
-    setState(() => isLoading = true);
-
-    this.propertys = await PropertyDatabase.instance.readAllPropertys();
-
-    setState(() => isLoading = false);
-
-  }
-
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
@@ -74,11 +75,9 @@ class _HomeState extends State<Home> {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
-                  itemCount: properties.length,
+                  itemCount: property.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final PropertyModel propertyModel = properties[index];
-                    return RecommendationCard(
-                        propertyModel: propertyModel);
+                    return RecommendCard(property[index]);
                   },
                 ),
               ),
